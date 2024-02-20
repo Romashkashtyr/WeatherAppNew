@@ -4,6 +4,8 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -13,6 +15,8 @@ import com.romashka.weatherappnew.Server.ApiServices
 import com.romashka.weatherappnew.ViewModel.WeatherViewModel
 import com.romashka.weatherappnew.databinding.ActivityMainBinding
 import com.romashka.weatherappnew.model.CurrentResponseApi
+import com.romashka.weatherappnew.model.ForecastResponseApi
+import eightbitlab.com.blurview.RenderScriptBlur
 import retrofit2.Call
 import retrofit2.Response
 import java.util.Calendar
@@ -39,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             var lon = 0.12
             var name = "London"
 
+            //current temp
             cityTxt.text = name
             progressBar.visibility = View.VISIBLE
             weatherViewModel.loadCurrentWeather(lat, lon, "metric").enqueue(object :
@@ -53,10 +58,11 @@ class MainActivity : AppCompatActivity() {
                         detailLayout.visibility = View.VISIBLE
                         data?.let {
                             statusTxt.text = it.weather?.get(0)?.main ?: "-"
-                            windTxt.text = it.wind?.speed.let {Math.round(it).toString()}+"Km"
-                            currentTempTxt.text = it.main.temp.let { Math.round(it).toString()}+"°"
-                            maxTempTxt.text = it.main.tempMax.let { Math.round(it).toString()}+"°"
-                            minTempTxt.text = it.main.tempMin.let { Math.round(it).toString()}+"°"
+                            windTxt.text = it.wind?.speed?.let {Math.round(it).toString()}+"Km"
+                            humidityTxt.text = it.main?.humidity?.toString() + "%"
+                            currentTempTxt.text = it.main?.temp?.let { Math.round(it).toString()}+"°"
+                            maxTempTxt.text = it.main?.tempMax?.let { Math.round(it).toString()}+"°"
+                            minTempTxt.text = it.main?.tempMin?.let { Math.round(it).toString()}+"°"
 
                             val drawable = if(isNightNow()) R.drawable.night_bg
                             else {
@@ -74,11 +80,43 @@ class MainActivity : AppCompatActivity() {
                 }
 
             })
+
+            // settings blue view
+            var radius = 10f
+            val decorView = window.decorView
+            val rootView = (decorView.findViewById(android.R.id.content)) as ViewGroup?
+            val windowBackground = decorView.background
+
+            rootView?.let {
+                blurView.setupWith(it, RenderScriptBlur(this@MainActivity))
+                    .setFrameClearDrawable(windowBackground)
+                    .setBlurRadius(radius)
+                blurView.outlineProvider = ViewOutlineProvider.BACKGROUND
+                blurView.clipToOutline = true
+            }
+
+            //forecast temp
+            weatherViewModel.loadForecastWeather(lat, lon, "metric").enqueue(object: retrofit2.Callback<ForecastResponseApi>{
+                override fun onResponse(
+                    call: Call<ForecastResponseApi>,
+                    response: Response<ForecastResponseApi>
+                ) {
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                    }
+
+                }
+
+                override fun onFailure(call: Call<ForecastResponseApi>, t: Throwable) {
+                    TODO("Not yet implemented")
+                }
+
+            })
         }
     }
 
     private fun isNightNow():Boolean{
-        return calendar.get(Calendar.HOUR_OF_DAY) >= 18
+        return calendar.get(Calendar.HOUR_OF_DAY) >= 19
 
     }
 
