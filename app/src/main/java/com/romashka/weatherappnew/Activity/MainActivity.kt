@@ -1,5 +1,6 @@
 package com.romashka.weatherappnew.Activity
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,7 +10,10 @@ import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.github.matteobattilana.weather.PrecipType
+import com.romashka.weatherappnew.Adapter.ForecastAdapter
 import com.romashka.weatherappnew.R
 import com.romashka.weatherappnew.Server.ApiServices
 import com.romashka.weatherappnew.ViewModel.WeatherViewModel
@@ -26,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private val weatherViewModel: WeatherViewModel by viewModels()
     private val calendar by lazy { Calendar.getInstance() }
+    private val forecastAdapter by lazy { ForecastAdapter() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +44,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.apply {
-            var lat = 51.50
-            var lon = 0.12
-            var name = "London"
+            var lat = intent.getDoubleExtra("lat", 0.0)
+            var lon = intent.getDoubleExtra("lat", 0.0)
+            var name = intent.getStringExtra("lat")
+
+
+            if(lat == 0.0) {
+                lat = 51.50
+                lon = 0.12
+                name = "London"
+            }
+
+            addCity.setOnClickListener {
+                startActivity(Intent(this@MainActivity, CityListActivity::class.java))
+            }
 
             //current temp
             cityTxt.text = name
@@ -103,6 +119,15 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     if (response.isSuccessful) {
                         val data = response.body()
+                        blurView.visibility = View.VISIBLE
+
+                        data?.let {
+                            forecastAdapter.differ.submitList(it.list)
+                            forecastView.apply {
+                                layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+                                adapter = forecastAdapter
+                            }
+                        }
                     }
 
                 }

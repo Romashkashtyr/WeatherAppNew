@@ -1,8 +1,10 @@
 package com.romashka.weatherappnew.Server
 
+import com.romashka.weatherappnew.model.CityResponseApi
 import com.romashka.weatherappnew.model.CurrentResponseApi
 import com.romashka.weatherappnew.model.ForecastResponseApi
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -23,4 +25,11 @@ interface ApiServices {
         @Query("units") units: String,
         @Query("apid") ApiKey: String
     ): Call<ForecastResponseApi> // отправка и получение запроса от сервера
+
+    @GET("geo/1.0/direct")
+    fun getCitiesList(
+        @Query("q") q: String,
+        @Query("limit") limit: Int,
+        @Query("apid") ApiKey: String
+    ): Call<CityResponseApi>
 }

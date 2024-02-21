@@ -2,13 +2,11 @@ package com.romashka.weatherappnew.Adapter
 
 import android.icu.util.Calendar
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.romashka.weatherappnew.R
 import com.romashka.weatherappnew.databinding.ForecastViewholderBinding
 import com.romashka.weatherappnew.model.ForecastResponseApi
 import java.text.SimpleDateFormat
